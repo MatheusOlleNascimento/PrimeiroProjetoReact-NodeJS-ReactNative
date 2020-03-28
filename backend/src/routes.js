@@ -14,17 +14,18 @@
 //& = Usado para anexar mais de um parâmetro
 //Ex: users?page=2&nome=Diego
 
-//Route Params: Parâmentros utilizados para identificar recursos
+//Tipos de querys
+//Com Driver: SELECT * FROM users
+//Com Query Builder: table('users').select('*').where()
+
+//Routes Params: Parâmentros utilizados para identificar recursos
 //Ex: /users/:id
 //Para buscar: /users/1
 
 //Request Body: Corpo da requisição, utilizado para criar ou alterar recursos
 
-//Tipos de querys
-//Com Driver: SELECT * FROM users
-//Com Query Builder: table('users').select('*').where()
-
 const express = require('express');
+const { celebrate, Segments, Joi} = require('celebrate');
 
 const OngCrontroller = require('./controllers/OngController');
 const IncidentCrontroller = require('./controllers/IncidentController');
@@ -36,12 +37,36 @@ const routes = express.Router();
 routes.post('/sessions', SessionCrontroller.create)
 
 routes.get('/ongs', OngCrontroller.index);
-routes.post('/ongs', OngCrontroller.create);
 
-routes.get('/incidents', IncidentCrontroller.index);
+routes.post('/ongs', celebrate({
+    [Segments.BODY]: Joi.object().keys({
+        name: Joi.string().required(),
+        email: Joi.string().required().email(),
+        whatsapp: Joi.string().required().min(10).max(11),
+        city: Joi.string().required(),
+        uf: Joi.string().required().length(2),
+    })
+}), OngCrontroller.create);
+
+routes.get('/profile', celebrate({
+    [Segments.HEADERS]: Joi.object({
+        authorization: Joi.string().required(),
+
+    }).unknown(),
+}) , ProfileCrontroller.index);
+
+routes.get('/incidents', celebrate({
+    [Segments.QUERY]: Joi.object().keys({
+        page: Joi.number(),
+    })
+}), IncidentCrontroller.index);
+
 routes.post('/incidents', IncidentCrontroller.create);
-routes.delete('/incidents/:id', IncidentCrontroller.delete);
 
-routes.get('/profile', ProfileCrontroller.index);
+routes.delete('/incidents/:id', celebrate({
+    [Segments.PARAMS]: Joi.object().keys({
+        id: Joi.number().required(),
+    })
+}), IncidentCrontroller.delete);
 
 module.exports = routes;
