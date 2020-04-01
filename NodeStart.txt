@@ -1,0 +1,64 @@
+Instale o NodeJS: https://nodejs.org/en/download/
+
+Crie uma pasta para o projeto: 
+	Ex: backend
+
+Acesse a pasta do projeto pelo terminal:
+	cd "nome" - acessar
+	cd .. - voltar
+
+Gerencie pacotes e configurações:
+	Execute os comandos:
+		*npm init -y (Cria o arquivo package.json)
+		*npm install express (Instala a dependência Express)
+		*npm install sqlite3 (Banco de dados Sqlite)	
+		 npm install nodemon -D (Instala o Nodemon para executar o Node em real-time)
+		 npm install knex (Gerenciador de Banco de dados)
+		 npm install cors (Gerencia quem pode acessar as rotas)
+		 npm install celebrate (Pacote para criar validações)
+
+Organize a estrutura do projeto:
+
+	Crie uma pasta chamada:src (Aqui vai ficar todos os arquivos criados e alterados por você)
+	Crie uma pasta dentro da src chamada:database (Aqui vai ficar todos arquivos relacionados ao banco de dados)
+	Crie uma pasta dentro da database chamada:migrations (Aqui vai ficar todos arquivos criados para gerenciar as entidades do banco de dados)
+	Crie um arquivo chamado:app.js (Este é o arquivo principal)
+	Crie um arquivo chamado:server.js (Este arquivo inicializa o servidor)
+	Crie um arquivo chamado:routes.js (Este arquivo armazena as rotas que a aplicação pode realizar)
+
+Crie script de inicialização com refresh real-time:
+	Acesse o arquivo package.json e altere o start para:
+		"start": "nodemon src/server.js" (Este comando faz que o nodemon inicialize sua aplicação e a recarregue quando alterada)
+
+Crie e configure o B.D:
+
+	Acesse o arquivo knexfilejs e cole essa estrutura:
+		development: {
+			client: 'sqlite3',
+		connection: {
+			filename: './src/database/db.sqlite'
+		},
+		migrations: {
+			directory: './src/database/migrations'
+		},
+		useNullAsDefault: true,
+		},
+
+	Documentação:
+		http://knexjs.org/#Migrations-make
+		http://knexjs.org/#Installation-migrations
+
+	Exectute o comando:
+		npx knex migrate:make "FunçãoeNomedaMigrate" (Cria uma migrate com a criação da entidade(UP) e o Rollback(Down))
+	
+	Crie o conteúdo de sua migrate com essa estrututa no export.UP:
+		return knex.schema.createTable('nomedatabela', function (table) {
+     			table.string('id').primary();
+     			table.string('nome').notNullable();
+		});
+
+	Crie o conteúdo de sua migrate com essa estrututa no export.DOWN:
+		return knex.schema.dropTable('nomedatabela');
+
+	Exectute o comando:
+	npx knex migrate:latest (Cria B.D com todas as migrates)
